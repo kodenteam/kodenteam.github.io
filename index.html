@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#eceeef" />
+    <script>
+      // Тема ставится до первой отрисовки, чтобы не было вспышки.
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('koden-theme'); } catch (e) {}
+        if (t !== 'light' && t !== 'dark') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
+        if (t === 'dark') document.querySelector('meta[name=theme-color]').setAttribute('content', '#131416');
+      })();
+    </script>
+    <title>KODEN: сайты и Telegram-боты, команда из трёх человек</title>
+    <meta name="description" content="Портфолио KODEN: восемь опубликованных сайтов, от музея изобретений с Telegram-ботом до сайта психолога и журнала об альпинизме. Связь через Telegram @konopelich." />
+    <meta property="og:title" content="KODEN: сайты и Telegram-боты" />
+    <meta property="og:description" content="Восемь опубликованных сайтов команды из трёх человек. Каждый можно открыть и проверить." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:url" content="https://kodenteam.github.io/" />
+    <meta property="og:image" content="https://kodenteam.github.io/images/og.png" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p style="padding:16px">Для просмотра включите JavaScript или напишите нам в Telegram: <a href="https://t.me/konopelich">@konopelich</a>.</p>
+    </noscript>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
