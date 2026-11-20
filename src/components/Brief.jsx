@@ -14,10 +14,11 @@ const deadlines = ['Без спешки', 'В течение месяца', 'З�
 const toggle = (list, v) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 
 export default function Brief() {
-  const [kind, setKind] = useState('brand');
-  const [picked, setPicked] = useState(['О компании', 'Контакты и карта']);
+  const [kind, setKind] = useState('');
+  const [picked, setPicked] = useState([]);
   const [has, setHas] = useState([]);
-  const [deadline, setDeadline] = useState('В течение месяца');
+  const [deadline, setDeadline] = useState('');
+  const [task, setTask] = useState('');
   const [likes, setLikes] = useState('');
   const [name, setName] = useState('');
   const [status, setStatus] = useState('');
@@ -26,16 +27,20 @@ export default function Brief() {
 
   const message = useMemo(() => {
     const lines = [`Здравствуйте! ${name.trim() ? `Меня зовут ${name.trim()}. ` : ''}Пишу с сайта KODEN.`];
-    lines.push(`Что нужно: ${k.label[0].toLowerCase() + k.label.slice(1)}.`);
+    if (k) lines.push(`Что нужно: ${k.label[0].toLowerCase() + k.label.slice(1)}.`);
+    if (task.trim()) lines.push(`Задача: ${task.trim()}`);
     if (picked.length) lines.push(`Разделы: ${picked.join(', ').toLowerCase()}.`);
-    lines.push(has.length ? `Уже есть: ${has.join(', ').toLowerCase()}.` : 'Логотипа, текстов и фото пока нет.');
-    lines.push(`Срок: ${deadline.toLowerCase()}.`);
+    if (has.length) lines.push(`Уже есть: ${has.join(', ').toLowerCase()}.`);
+    if (deadline) lines.push(`Срок: ${deadline.toLowerCase()}.`);
     if (likes.trim()) lines.push(`Нравятся сайты: ${likes.trim()}`);
     lines.push('Сколько это будет стоить и когда сможете начать?');
     return lines.join('\n');
-  }, [k, picked, has, deadline, likes, name]);
+  }, [k, task, picked, has, deadline, likes, name]);
 
-  const copy = async (thenOpen) => {
+  const draftUrl = new URL(telegram);
+  draftUrl.searchParams.set('text', message);
+
+  const copy = async () => {
     let ok = true;
     try {
       await navigator.clipboard.writeText(message);
@@ -43,14 +48,13 @@ export default function Brief() {
       ok = false;
     }
     setStatus(ok ? 'Текст скопирован. Вставьте его в чат.' : 'Не удалось скопировать автоматически: выделите текст заявки вручную.');
-    if (thenOpen) window.open(telegram, '_blank', 'noopener');
   };
 
   return (
     <section id="brief" className="brief wrap" aria-labelledby="brief-h">
       <div className="brief-head">
         <h2 id="brief-h">Соберите заявку за минуту</h2>
-        <p>С сайта сообщение никуда не отправляется: вы копируете его и пишете нам в Telegram сами.</p>
+        <p>Заполните то, что уже знаете. В Telegram откроется черновик: его можно проверить, дополнить и отправить.</p>
       </div>
 
       <div className="brief-grid">
@@ -104,6 +108,15 @@ export default function Brief() {
           </fieldset>
 
           <div className="brief-fields">
+            <label className="brief-task">
+              <span>Что должен делать сайт или бот?</span>
+              <textarea
+                rows={4}
+                value={task}
+                onChange={(e) => setTask(e.target.value)}
+                placeholder="Например, показывать услуги и принимать заявки на консультацию"
+              />
+            </label>
             <label>
               <span>Ссылки на сайты, которые нравятся</span>
               <input type="text" value={likes} onChange={(e) => setLikes(e.target.value)} placeholder="например, apple.com/ru" />
@@ -118,17 +131,17 @@ export default function Brief() {
         <div className="brief-out">
           <p className="brief-to">Сообщение для {telegramHandle}</p>
           <pre className="brief-msg" tabIndex={0}>{message}</pre>
-          {k.example && (
+          {k?.example && (
             <p className="brief-example">
               Похожая работа: <a href={k.example[1]}>{k.example[0]}</a>
             </p>
           )}
           <div className="brief-actions">
-            <button type="button" className="btn btn-mark" onClick={() => copy(true)}>
-              Скопировать и открыть Telegram
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={() => copy(false)}>
-              Только скопировать
+            <a className="btn btn-mark" href={draftUrl.href} target="_blank" rel="noopener noreferrer">
+              Открыть черновик в Telegram
+            </a>
+            <button type="button" className="btn btn-ghost" onClick={copy}>
+              Скопировать текст
             </button>
           </div>
           <p className="brief-status" role="status">{status}</p>
